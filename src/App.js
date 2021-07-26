@@ -7,6 +7,7 @@ import { Row } from 'react-bootstrap';
 import { Col } from 'react-bootstrap';
 import { tournApi } from './rest/TournApi';
 import TournamentList from './components/TournamentList';
+import { PlayerList } from './components/PlayerList';
 
 function App() {
 
@@ -17,9 +18,18 @@ function App() {
       timestamp: Date.now()
     }
 
-    await tournApi.postTournament.post(newTournament);
+    await tournApi.postTournament(newTournament);
   }
 
+  const addPlayer = async (newPlayerName) => {
+    let newPlayer = {
+      name: newPlayerName,
+      points: null,
+      matches: [],
+    }
+
+    await tournApi.postTournament(newPlayer);
+  }
 
   return (
     <div className="App">
@@ -27,8 +37,9 @@ function App() {
         <Row>
           <Col>
             <TournamentList />
-            <NewTournamentForm />
-            <NewPlayerForm />
+            <NewTournamentForm addTournament={addTournament} />
+            <PlayerList />
+            <NewPlayerForm addPlayer={addPlayer} />
           </Col>
         </Row>
       </Container>

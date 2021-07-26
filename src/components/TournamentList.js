@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { tournApi } from '../rest/TournApi';
 import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
+import Button from 'react-bootstrap/Button';
 
 export default class TournamentList extends React.Component {
     state = {
-        tournaments: []
+        tournaments: [],
+        isLoading: false,
     }
     
     componentDidMount() {
@@ -13,8 +15,28 @@ export default class TournamentList extends React.Component {
     }
 
     fetchTournaments = async () => {
-        const tournaments = await tournApi.getTournaments();
+        const tournaments = await tournApi.getAllTournaments();
         this.setState({ tournaments });
+        if(this.isLoading) {
+            this.setState({isLoading: false});
+        }
+    }
+
+    // handleClick ( 
+    //     () => {
+    //       if (isLoading) {
+    //         simulateNetworkRequest().then(() => {
+    //           setLoading(false);
+    //         });
+    //       }
+    //     },
+    //     [isLoading]
+    // );
+
+    handleClick = () => {
+        console.log(`we clicked it boys~`);
+        this.setState({isLoading: true});
+        this.fetchTournaments().then(setTimeout(this.isLoading = false, 2000));
     }
 
     render() {
@@ -44,7 +66,13 @@ export default class TournamentList extends React.Component {
                             </tbody>
 
                         </Table>
-
+                        <Button 
+                            variant="primary"
+                            disabled={this.isLoading}
+                            onClick={!this.isLoading ? this.handleClick : null}
+                        >
+                            {this.isLoading ? 'Loading' : 'Refresh'}
+                        </Button>
                     </div>
 
                 )

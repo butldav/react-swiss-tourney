@@ -11,10 +11,10 @@ export const NewTournamentForm = ( props ) => {
             props.addTournament(tournamentName);
         } else {
             console.log('invalid input - tournament form');
+            console.log(tournamentName);
         }
         setTournamentName('');
     }
-
 
     return (
         <div>
@@ -25,13 +25,13 @@ export const NewTournamentForm = ( props ) => {
                         type="text" 
                         placeholder="Enter Tournament Name" 
                         onChange={(e) => setTournamentName(e.target.value)}
+                        value={tournamentName}
                     />                    
                 </Form.Group>
                 <Button variant="primary" type="submit">
                     Submit
                 </Button>
             </Form>
-
         </div>
     )
 }
