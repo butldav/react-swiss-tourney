@@ -63,6 +63,8 @@ class TournApi {
                     'Content-type': 'application/json'
                 }
             });
+            const json = await resp.json();
+            return json;
         } catch(e) {
             console.log(`Error deleting tourn with id ${tournId}`, e);
         }
@@ -129,6 +131,7 @@ class TournApi {
                     'Content-type': 'application/json'
                 }
             });
+            return await resp.json();
         } catch(e) {
             console.log(`Error deleting tourn match with id ${tournId} + ${matchId}`, e);
         }
@@ -163,6 +166,7 @@ class TournApi {
                 },
                 body: JSON.stringify(player), 
             });
+            return await resp.json();
         } catch(e) {
             console.log(`Error adding new player`, e);
         }
@@ -194,6 +198,7 @@ class TournApi {
                     'Content-type': 'application/json'
                 }
             });
+            return await resp.json();
         } catch(e) {
             console.log(`Error deleting tourn with id ${playerId}`, e);
         }

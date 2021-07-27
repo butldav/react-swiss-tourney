@@ -28,7 +28,7 @@ function App() {
       matches: [],
     }
 
-    await tournApi.postTournament(newPlayer);
+    await tournApi.postPlayer(newPlayer);
   }
 
   return (
