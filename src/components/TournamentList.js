@@ -3,6 +3,7 @@ import { tournApi } from '../rest/TournApi';
 import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
+import Link from 'react-router-dom';
 
 export default class TournamentList extends React.Component {
     state = {
@@ -16,6 +17,7 @@ export default class TournamentList extends React.Component {
 
     fetchTournaments = async () => {
         const tournaments = await tournApi.getAllTournaments();
+        console.log(tournaments);
         this.setState({ tournaments });
         if(this.isLoading) {
             this.setState({isLoading: false});

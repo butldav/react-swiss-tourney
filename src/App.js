@@ -8,8 +8,24 @@ import { Col } from 'react-bootstrap';
 import { tournApi } from './rest/TournApi';
 import TournamentList from './components/TournamentList';
 import { PlayerList } from './components/PlayerList';
+import { useEffect, useState } from 'react';
+import { MatchResultForm } from './components/MatchResultForm';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  useRouteMatch,
+  useParams
+} from "react-router-dom";
 
 function App() {
+  const [ playerList, setPlayerList ] = useState('');
+  const [ tournamentList, setTournamentList ] = useState('');
+  
+  useEffect(() => {
+    fetchPlayers();
+  }, []);
 
   const addTournament = async (newTournamentName) => {
     let newTournament = {
@@ -19,6 +35,7 @@ function App() {
     }
 
     await tournApi.postTournament(newTournament);
+    await fetchTournaments();
   }
 
   const addPlayer = async (newPlayerName) => {
@@ -29,6 +46,20 @@ function App() {
     }
 
     await tournApi.postPlayer(newPlayer);
+    await fetchPlayers();
+  }
+  
+  const fetchTournaments = async () => {
+    const tournaments = await tournApi.getAllTournaments();
+    console.log(tournaments);
+    setTournamentList({ tournaments });
+    console.log(`tournamentList`, tournamentList);
+  }
+
+  const fetchPlayers = async () => {
+    const players = await tournApi.getAllPlayers();
+    console.log(players);
+    setPlayerList(players);   
   }
 
   return (
@@ -36,9 +67,9 @@ function App() {
       <Container>
         <Row>
           <Col>
-            <TournamentList />
+            <TournamentList tournamentList={tournamentList} fetchTournaments={fetchTournaments} />
             <NewTournamentForm addTournament={addTournament} />
-            <PlayerList />
+            <PlayerList fetchPlayers={fetchPlayers} playerList={playerList} />
             <NewPlayerForm addPlayer={addPlayer} />
           </Col>
         </Row>

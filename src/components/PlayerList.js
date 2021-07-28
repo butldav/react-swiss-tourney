@@ -3,54 +3,14 @@ import { tournApi } from '../rest/TournApi';
 import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
+import { LoadingButton } from './RefreshButton';
+import { isPropertySignature } from 'typescript';
 
-export const PlayerList = ( props ) => {
-    const [ PlayerList, setPlayers ] = useState('');
-    // const [ isLoading, setLoading ] = useState(false);
+export const PlayerList = ( props ) => {    
 
-    useEffect(() => {
-        //  fetchPlayers();
-    console.log('eyo');
-    // setPlayers(["1", "2", "3"]);
-    }, [PlayerList]);
-
-    const fetchPlayers = async () => {
-        const players = await tournApi.getAllPlayers();
-        console.log(players);
-        setPlayers({ players });        
-    }
-
-    function LoadingButton( props ) {
-        const [isLoading, setLoading] = useState(false);
-        // const [ PlayerList, setPlayers ] = useState('');
-        // const fetchPlayers = async () => {
-        //     const players = await tournApi.getAllPlayers();
-        //     console.log(players);
-        //     setPlayers({ players });        
-        // }
-
-        useEffect(( props ) => {
-          if (isLoading) {
-            props.fetchPlayers().then(() => {
-              setLoading(false);
-            });
-          }
-        }, [isLoading]);
-      
-        const handleClick = () => setLoading(true);
-      
-        return (
-          <Button
-            variant="primary"
-            disabled={isLoading}
-            onClick={!isLoading ? handleClick : null}
-          >
-            {isLoading ? 'Loading…' : 'Click to load'}
-          </Button>
-        );
-      }
-
-    if(PlayerList !== undefined && PlayerList.length > 0 ) {
+    const players = props.playerList;
+    
+    if(players !== undefined && players.length > 0) {
         return(
             <div className="player-list col">
                 <Table striped bordered hover>
@@ -62,7 +22,7 @@ export const PlayerList = ( props ) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {PlayerList.map((player) => (
+                        {players.map((player) => (
                             <tr>
                                 <td>{player.id}</td>
                                 <td>{player.name}</td>
@@ -71,7 +31,6 @@ export const PlayerList = ( props ) => {
                         ))}
                     </tbody>
                 </Table>
-                <LoadingButton />
             </div>
         )
     } else {
@@ -80,8 +39,7 @@ export const PlayerList = ( props ) => {
             <Alert variant='primary'>
                 No Players Found
             </Alert>
-            
-            <LoadingButton fetchPlayers={fetchPlayers} />
+            <LoadingButton actionFunc={props.fetchPlayers} />
             </div>
         )
     }    
