@@ -1,90 +1,52 @@
-import React from 'react';
-import { tournApi } from '../rest/TournApi';
+import React, { useState } from 'react';
 import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
-import Button from 'react-bootstrap/Button';
-import Link from 'react-router-dom';
+import { BrowserRouter, Route, Link, useRouteMatch } from 'react-router-dom';
+import { LoadingButton } from './RefreshButton';
 
-export default class TournamentList extends React.Component {
-    state = {
-        tournaments: [],
-        isLoading: false,
-    }
-    
-    componentDidMount() {
-        this.fetchTournaments();
-    }
+export const TournamentList = ( props ) => {
 
-    fetchTournaments = async () => {
-        const tournaments = await tournApi.getAllTournaments();
-        console.log(tournaments);
-        this.setState({ tournaments });
-        if(this.isLoading) {
-            this.setState({isLoading: false});
-        }
-    }
+    const tournamentList = props.tournamentList;
+    const fetchTournaments = props.fetchTournaments;
+    let rMatch = useRouteMatch();
 
-    // handleClick ( 
-    //     () => {
-    //       if (isLoading) {
-    //         simulateNetworkRequest().then(() => {
-    //           setLoading(false);
-    //         });
-    //       }
-    //     },
-    //     [isLoading]
-    // );
+    if(!tournamentList) {
+        return(
+            <div>
+            <Alert variant='primary'>
+                No Tournaments Found
+            </Alert>
+            <LoadingButton actionFunc={fetchTournaments} />
+            </div>
+        )
+    } else {
+        return (
+            <div className="tournament-list col">
+            <Table striped bordered hover>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Player Count</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody> 
+                    {tournamentList.map((tournament) => (
+                        <tr key={tournament.id}>
+                            <td>{tournament.id}</td>
+                            <td><Link to={`${rMatch.url}/${tournament.id}`}>{tournament.name}</Link></td>
+                            <td>{tournament.players.length}</td>
+                            <td>{new Date(tournament.timestamp).toLocaleString('en-us')}</td>
+                        </tr>
+                    ))}
+                </tbody>
 
-    handleClick = () => {
-        console.log(`we clicked it boys~`);
-        this.setState({isLoading: true});
-        this.fetchTournaments().then(setTimeout(this.isLoading = false, 2000));
-    }
-
-    render() {
-        if(this.state.tournaments !== undefined) {      
-            if(this.state.tournaments.length > 0 || this.state.tournaments !== undefined) {
-
-                return (
-                        <div className="tournament-list col">
-                        <Table striped bordered hover>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Player Count</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {this.state.tournaments.map((tournament) => (
-                                    <tr>
-                                        <td>{tournament.id}</td>
-                                        <td>{tournament.name}</td>
-                                        <td>{tournament.players.length}</td>
-                                        <td>{new Date(tournament.timestamp).toLocaleString('en-us')}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-
-                        </Table>
-                        <Button 
-                            variant="primary"
-                            disabled={this.isLoading}
-                            onClick={!this.isLoading ? this.handleClick : null}
-                        >
-                            {this.isLoading ? 'Loading' : 'Refresh'}
-                        </Button>
-                    </div>
-
-                )
-            }
-        } else {
-            return (
-                <Alert variant='primary'>
-                    No Tournaments Found
-                </Alert>
-            )
-        }
-    }
+            </Table>
+            <LoadingButton actionFunc={props.fetchTournaments} />
+            </div>
+        )
+    }    
 }
+
+export default TournamentList;

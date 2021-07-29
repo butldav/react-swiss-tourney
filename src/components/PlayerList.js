@@ -4,12 +4,20 @@ import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import { LoadingButton } from './RefreshButton';
-import { isPropertySignature } from 'typescript';
 
 export const PlayerList = ( props ) => {    
+    const tournamentPlayers = props.tournamentPlayers;
+    const playerList = props.playerList;
+    let players = [];
 
-    const players = props.playerList;
-    
+    if(tournamentPlayers) {        
+        players = playerList.filter((player) => {
+            return tournamentPlayers.includes(player.id);
+        })
+    } else {
+        players = props.playerList;
+    }
+    console.log(props.playerList);
     if(players !== undefined && players.length > 0) {
         return(
             <div className="player-list col">
@@ -23,7 +31,7 @@ export const PlayerList = ( props ) => {
                     </thead>
                     <tbody>
                         {players.map((player) => (
-                            <tr>
+                            <tr key={player.id}>
                                 <td>{player.id}</td>
                                 <td>{player.name}</td>
                                 <td>{player.points ? player.points : '0'}</td>
