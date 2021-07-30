@@ -25,7 +25,7 @@ import {
 function App() {
   const [ playerList, setPlayerList ] = useState('');
   const [ tournamentList, setTournamentList ] = useState('');
-  const [ tournament, setTournament ] = useState('');
+  const [ loadedTournament, setLoadedTournament ] = useState('');
 
   useEffect(() => {
     fetchTournaments();
@@ -55,9 +55,13 @@ function App() {
   }
   
   const addTournamentPlayer = async ( newTournamentPlayer, tournamentId ) => {
-    let playerTournament = tournApi.getTournament(tournamentId);
+    console.log(newTournamentPlayer, tournamentId);
+    let playerTournament = await tournApi.getTournament(tournamentId);
+    console.log(playerTournament);
+
     playerTournament.players.push(newTournamentPlayer);
     await tournApi.putTournament(playerTournament);
+    await loadTournament(tournamentId);
   }
   
   const fetchTournaments = async () => {
@@ -80,7 +84,7 @@ function App() {
     console.log('We ran loadTournament', tournamentList);
     tournament = tournamentList.filter((object) => object.id == tournamentId);
     console.log('Line 75 loadTournament', tournament[0]);
-    return tournament[0];
+    setLoadedTournament(tournament[0]);
   }
 
   return (
@@ -105,7 +109,7 @@ function App() {
           <Router>
             <Switch>
               <Route path={`/tournaments/:tournamentId`}>
-                <Tournament loadTournament={loadTournament} playerList={playerList} />
+                <Tournament loadTournament={loadTournament} playerList={playerList} loadedTournament={loadedTournament}/>
                 <AddPlayerForm playerList={playerList} addPlayer={addTournamentPlayer} />
               </Route>
               <Route path="/tournaments">

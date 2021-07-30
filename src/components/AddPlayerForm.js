@@ -1,9 +1,11 @@
 import React, {useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
 
 export const AddPlayerForm = ( props ) => {
     const [ playerId, setPlayerId ] = useState('');
-    const tournamentId = props.tournamentId;
+    const params = useParams();
+    const tournamentId = params.tournamentId;
     const players = props.playerList;
     const addTournamentPlayer = props.addPlayer;
 
@@ -11,8 +13,8 @@ export const AddPlayerForm = ( props ) => {
         e.preventDefault();
         
         if(playerId) {
-            let addPlayer = players.filter((player) => player.id == playerId)
-            props.addTournamentPlayer(addPlayer, tournamentId);
+            // let addPlayer = players.filter((player) => player.id == playerId)
+            addTournamentPlayer(playerId, tournamentId);
         }
 
     }

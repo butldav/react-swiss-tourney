@@ -13,13 +13,18 @@ class TournApi {
     }
 
     getTournament = async (tournId) => {
-        try {
-            const resp = await fetch(`${TournApiUrl}/${tournId}`);
-            const json = await resp.json();
-            return json;
-        } catch (e) {
-            console.log(`Error fetching tournament with id ${tournId}: `, e);
+        if(tournId){
+            try {
+                const resp = await fetch(`${TournApiUrl}/${tournId}`);
+                const json = await resp.json();
+                return json;
+            } catch (e) {
+                console.log(`Error fetching tournament with id ${tournId}: `, e);
+            }
+        } else {
+            console.log('No tournament ID provided');
         }
+
     }
 
     putTournament = async (tourn) => {
