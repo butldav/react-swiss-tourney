@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Table from 'react-bootstrap/Table';
 import { PlayerList } from './PlayerList';
 import { useParams } from 'react-router';
@@ -8,10 +8,14 @@ export const Tournament = (props) => {
     const loadTournament = props.loadTournament;
     const playerList = props.playerList;
     const loadedTournament = props.loadedTournament;
+    
+    useEffect(() => {
+        if(params.tournamentId && !loadedTournament) {
+            console.log('Tournament loaded on Line 13 in Tournament.js');
+            loadTournament(params.tournamentId);
+        }
+    })
 
-    if(params.tournamentId && !loadedTournament) {
-        loadTournament(params.tournamentId);
-    }
 
     if(params.tournamentId && loadedTournament) {
         console.log('Line 12 Tournament', loadedTournament);
