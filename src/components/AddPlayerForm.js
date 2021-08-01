@@ -1,4 +1,4 @@
-import React, {useState } from 'react';
+import React, { useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 
@@ -12,25 +12,35 @@ export const AddPlayerForm = ( props ) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        if(playerId) {
-            // let addPlayer = players.filter((player) => player.id == playerId)
+        if(playerId) {        
             addTournamentPlayer(playerId, tournamentId);
         }
 
     }
 
-    return(
-     <div>
-                <Form onSubmit={handleSubmit}>
-                    <Form.Group className="mb-3" controlId="matchWinner">
-                        <Form.Control as="select" onChange={(e) => setPlayerId(e.target.value)}>
-                            {players.map((player) => <option key={player.id} value={player.id}>{player.name}</option> )}                            
-                        </Form.Control>
-                        <Button variant="primary" type="submit">
-                            Submit
-                        </Button>
-                    </Form.Group>
-                </Form>
-     </div>   
-    )
+    if(!players || players.length === 0 ) {
+        return(
+            <div>Loading playerlist...</div>
+        )
+    } else {
+        return(
+            <div>
+                   <h3>Add Player</h3>
+                   <Form onSubmit={handleSubmit}>
+                       <Form.Group className="mb-3" controlId="addPlayer">
+                           <Form.Control as="select" onChange={(e) => setPlayerId(e.target.value)}>
+                               <option>Select Player</option>
+                               {players.map((player) => <option key={player.id} value={player.id}>{player.name}</option> )}                            
+                           </Form.Control>
+                           <Button variant="primary" type="submit">
+                               Submit
+                           </Button>
+                       </Form.Group>
+                   </Form>
+            </div>   
+           )
+    }
+
 }
+
+export default AddPlayerForm;

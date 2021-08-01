@@ -1,23 +1,33 @@
 import React, { useEffect } from 'react';
 import Table from 'react-bootstrap/Table';
 import { PlayerList } from './PlayerList';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
+import { AddMatchForm } from './AddMatchForm';
+import { MatchList } from './MatchList';
 
 export const Tournament = (props) => {
     const params = useParams();
     const loadTournament = props.loadTournament;
     const playerList = props.playerList;
     const loadedTournament = props.loadedTournament;
-    
+    const fetchMatches = props.fetchMatches;
+    const loadedMatches = props.loadedMatches;
+    const fetchPlayers = props.fetchPlayers;
+
     useEffect(() => {
         if(params.tournamentId && !loadedTournament) {
             console.log('Tournament loaded on Line 13 in Tournament.js');
             loadTournament(params.tournamentId);
+            fetchMatches(params.tournamentId);            
         }
+        if(!playerList) {
+            fetchPlayers();
+        }
+
     })
-
-
-    if(params.tournamentId && loadedTournament) {
+    
+    if(params.tournamentId && loadedTournament && props.playerList.length > 0) {
+        const tournamentPlayers = props.playerList.filter((player) => loadedTournament.players.includes(player.id));
         console.log('Line 12 Tournament', loadedTournament);
         console.log('Line 13 Tournament', loadedTournament.players);
         return(
@@ -31,7 +41,13 @@ export const Tournament = (props) => {
                         </tr>                        
                     </tbody>
                 </Table>
-                <PlayerList tournamentPlayers={loadedTournament.players} playerList={playerList} />
+                <PlayerList
+                  playerList={tournamentPlayers}
+                  deleteAction={props.deleteAction} 
+                  tid={loadedTournament.id}
+                />
+                <MatchList loadedMatches={loadedMatches} deleteAction={props.deleteMatchAction} matchPlayers={playerList} />
+                <AddMatchForm playerList={tournamentPlayers} loadedTournament={loadedTournament} addMatch={props.addMatch} />
             </div>
         )
     }
@@ -42,3 +58,4 @@ export const Tournament = (props) => {
         </div>
     )
 }
+export default Tournament;

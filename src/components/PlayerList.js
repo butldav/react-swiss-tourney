@@ -1,22 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { tournApi } from '../rest/TournApi';
+import React from 'react';
 import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
-import Button from 'react-bootstrap/Button';
-import { LoadingButton } from './RefreshButton';
+import { DeleteButton } from './DeleteButton';
 
 export const PlayerList = ( props ) => {    
-    const tournamentPlayers = props.tournamentPlayers;
-    const playerList = props.playerList;
-    let players = [];
-
-    if(tournamentPlayers) {        
-        players = playerList.filter((player) => {
-            return tournamentPlayers.includes(player.id);
-        })
-    } else {
-        players = props.playerList;
-    }
+    const players = props.playerList;
+    
     console.log(props.playerList);
     if(players !== undefined && players.length > 0) {
         return(
@@ -26,7 +15,7 @@ export const PlayerList = ( props ) => {
                         <tr>
                             <th>ID</th>
                             <th>Player Name</th>
-                            <th>Points</th>
+                            <th>Delete</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -34,7 +23,7 @@ export const PlayerList = ( props ) => {
                             <tr key={player.id}>
                                 <td>{player.id}</td>
                                 <td>{player.name}</td>
-                                <td>{player.points ? player.points : '0'}</td>
+                                <td><DeleteButton id={player.id} deleteAction={props.deleteAction} tid={props.tid} /></td>
                             </tr>
                         ))}
                     </tbody>
@@ -47,8 +36,9 @@ export const PlayerList = ( props ) => {
             <Alert variant='primary'>
                 No Players Found
             </Alert>
-            <LoadingButton actionFunc={props.fetchPlayers} />
             </div>
         )
     }    
 }
+
+export default PlayerList;

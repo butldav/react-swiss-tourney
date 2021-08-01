@@ -18,6 +18,7 @@ export const NewPlayerForm = ( props ) => {
     
     return (
         <div>
+            <h3>Add New Player</h3>
             <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlID="newPlayerName">
                     <Form.Label>Player Name</Form.Label>
@@ -35,3 +36,5 @@ export const NewPlayerForm = ( props ) => {
         </div>
     )
 }
+
+export default NewPlayerForm;

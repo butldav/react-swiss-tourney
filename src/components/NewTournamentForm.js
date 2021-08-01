@@ -18,6 +18,7 @@ export const NewTournamentForm = ( props ) => {
 
     return (
         <div>
+            <h3>Add Tournament</h3>
             <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlId="newTournamentName">
                     <Form.Label>Tournament Name</Form.Label>
@@ -35,3 +36,5 @@ export const NewTournamentForm = ( props ) => {
         </div>
     )
 }
+
+export default NewTournamentForm;

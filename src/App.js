@@ -1,45 +1,40 @@
-import './App.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
-import { NewTournamentForm } from './components/NewTournamentForm';
-import { NewPlayerForm } from './components/NewPlayerForm';
-import { Container } from 'react-bootstrap';
-import { Row } from 'react-bootstrap';
-import { Col } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+import { Container, Row, Col, Navbar, Nav } from 'react-bootstrap';
 import { tournApi } from './rest/TournApi';
 import TournamentList from './components/TournamentList';
 import { PlayerList } from './components/PlayerList';
-import { useEffect, useState } from 'react';
-import { Navbar, Nav } from 'react-bootstrap';
-// import { MatchResultForm } from './components/MatchResultForm';
+import { HomePage } from './components/HomePage';
 import { Tournament } from './components/Tournament';
 import { AddPlayerForm } from './components/AddPlayerForm';
+import { NewTournamentForm } from './components/NewTournamentForm';
+import { NewPlayerForm } from './components/NewPlayerForm';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link,
-  useRouteMatch,
-  useParams
 } from "react-router-dom";
 
 function App() {
   const [ playerList, setPlayerList ] = useState('');
   const [ tournamentList, setTournamentList ] = useState('');
   const [ loadedTournament, setLoadedTournament ] = useState('');
-
-  useEffect(() => {
-    fetchTournaments();
-    fetchPlayers();
-  }, []);
+  const [ loadedMatches, setLoadedMatches ] = useState('');
 
   const addTournament = async (newTournamentName) => {
     let newTournament = {
       name: newTournamentName,
       players: [],
+      matches: [],
       timestamp: Date.now()
     }
 
     await tournApi.postTournament(newTournament);
+    await fetchTournaments();
+  }
+
+  const deleteTournament = async (tournamentId) => {
+    await tournApi.deleteTournament(tournamentId);
     await fetchTournaments();
   }
 
@@ -54,16 +49,34 @@ function App() {
     await fetchPlayers();
   }
   
-  const addTournamentPlayer = async ( newTournamentPlayer, tournamentId ) => {
-    console.log(newTournamentPlayer, tournamentId);
+  const deletePlayer = async (playerId) => {
+    await tournApi.deletePlayer(playerId);
+    await fetchPlayers();
+  }
+
+  const addTournamentPlayer = async ( newTournamentPlayerId, tournamentId ) => {
+    console.log(newTournamentPlayerId, tournamentId);
     let playerTournament = await tournApi.getTournament(tournamentId);
     console.log(playerTournament);
 
-    playerTournament.players.push(newTournamentPlayer);
-    await tournApi.putTournament(playerTournament);
-    await loadTournament(tournamentId);
+    playerTournament.players.push(newTournamentPlayerId);
+    let newTournament = await tournApi.putTournament(playerTournament);
+    setLoadedTournament(newTournament);
   }
   
+  const deleteTournamentPlayer = async ( playerId, tournamentId ) => {
+    let playerTournament = await tournApi.getTournament(tournamentId);
+    let newPlayers = [];
+    for (let i = 0; i < playerTournament.players.length; i++) {
+      if(playerTournament.players[i] !== playerId) {
+        newPlayers.push(playerTournament.players[i]);
+      }      
+    }
+    playerTournament.players = newPlayers;    
+    let newTournament = await tournApi.putTournament(playerTournament);
+    setLoadedTournament(newTournament);
+  }
+
   const fetchTournaments = async () => {
     const tournaments = await tournApi.getAllTournaments();
     
@@ -77,25 +90,61 @@ function App() {
     setPlayerList(players);   
   }
 
-  const loadTournament = (tournamentId) => {
+  const loadTournament = async (tournamentId) => {
     let tournament = {};
-    console.log(tournamentList)
-    // if(!tournamentList) fetchTournaments();
     console.log('We ran loadTournament', tournamentList);
-    tournament = tournamentList.filter((object) => object.id == tournamentId);
-    console.log('Line 75 loadTournament', tournament[0]);
-    setLoadedTournament(tournament[0]);
+    tournament = await tournApi.getTournament(tournamentId);
+    setLoadedTournament(tournament);
   }
+
+  const addMatch = async (players, tournamentId, winner) => {
+    let newMatch = {
+      players: players,
+      winner: winner,
+    }
+    let updatedMatch = await tournApi.postTournamentMatch(tournamentId, newMatch);
+    if(updatedMatch.id) {
+      let tournamentToUpdate = await tournApi.getTournament(tournamentId);
+      tournamentToUpdate.matches.push(updatedMatch.id);
+      let updatedTournament = await tournApi.putTournament(tournamentToUpdate);
+      setLoadedTournament(updatedTournament);
+      fetchMatches(tournamentId);
+    }
+  }
+
+  const fetchMatches = async (tournamentId) => {
+    let matches = await tournApi.getAllTournMatches(tournamentId);
+    setLoadedMatches(matches);
+  }
+
+  const deleteMatch = async (matchId, tournamentId) => {
+    await tournApi.deleteTournamentMatch(tournamentId, matchId);
+    let tournamentToUpdate = await tournApi.getTournament(tournamentId);
+    let matchesToUpdate = [];
+    for (let i = 0; i < tournamentToUpdate.matches.length; i++) {
+      if(tournamentToUpdate.matches[i] !== matchId) {
+        matchesToUpdate.push(tournamentToUpdate.matches[i]);
+      }
+    }
+    tournamentToUpdate.matches = matchesToUpdate;
+    let updatedTournament = await tournApi.putTournament(tournamentToUpdate);
+    setLoadedTournament(updatedTournament);
+    fetchMatches(tournamentId);
+  }
+
+  useEffect(() => {
+    fetchTournaments();
+    fetchPlayers();
+  }, []);
 
   return (
     <div className="App">
 
       <Container>
         <Row>
-          <Col>
-          
+          <Col>          
               <Navbar bg="light" expand="lg">
-                <Navbar.Brand href="/">League Manager</Navbar.Brand>
+                <Navbar.Brand href="/">Tournament Manager</Navbar.Brand>
                 <Nav className="me-auto">
                   <Nav.Link href="/tournaments">Tournaments</Nav.Link>
                   <Nav.Link href="/players">Players</Nav.Link>
@@ -109,16 +158,37 @@ function App() {
           <Router>
             <Switch>
               <Route path={`/tournaments/:tournamentId`}>
-                <Tournament loadTournament={loadTournament} playerList={playerList} loadedTournament={loadedTournament}/>
-                <AddPlayerForm playerList={playerList} addPlayer={addTournamentPlayer} />
+                <Tournament 
+                  loadTournament={loadTournament}
+                  fetchMatches={fetchMatches}
+                  fetchPlayers={fetchPlayers}
+                  playerList={playerList}
+                  loadedTournament={loadedTournament}
+                  loadedMatches={loadedMatches}
+                  deleteAction={deleteTournamentPlayer}
+                  deleteMatchAction={deleteMatch}
+                  addMatch={addMatch}
+                />
+                <AddPlayerForm playerList={playerList} addPlayer={addTournamentPlayer} />                
               </Route>
               <Route path="/tournaments">
-                <TournamentList tournamentList={tournamentList} fetchTournaments={fetchTournaments} />
+                <TournamentList 
+                  tournamentList={tournamentList}
+                  fetchTournaments={fetchTournaments}
+                  deleteAction={deleteTournament}
+                 />
                 <NewTournamentForm addTournament={addTournament} />
               </Route>
               <Route path="/players">
-                <PlayerList fetchPlayers={fetchPlayers} playerList={playerList} />
+                <PlayerList 
+                  fetchPlayers={fetchPlayers}
+                  playerList={playerList}
+                  deleteAction={deletePlayer}
+                />
                 <NewPlayerForm addPlayer={addPlayer} />
+              </Route>
+              <Route path='/'>
+                <HomePage />
               </Route>
             </Switch>
             </Router>

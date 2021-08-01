@@ -1,22 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert';
-import { BrowserRouter, Route, Link, useRouteMatch } from 'react-router-dom';
-import { LoadingButton } from './RefreshButton';
+import { Link, useRouteMatch } from 'react-router-dom';
+import { DeleteButton } from './DeleteButton';
 
 export const TournamentList = ( props ) => {
 
-    const tournamentList = props.tournamentList;
-    const fetchTournaments = props.fetchTournaments;
+    const tournamentList = props.tournamentList;    
     let rMatch = useRouteMatch();
 
-    if(!tournamentList) {
+    if(!tournamentList || tournamentList.length === 0) {
         return(
             <div>
             <Alert variant='primary'>
                 No Tournaments Found
             </Alert>
-            <LoadingButton actionFunc={fetchTournaments} />
             </div>
         )
     } else {
@@ -29,6 +27,7 @@ export const TournamentList = ( props ) => {
                         <th>Name</th>
                         <th>Player Count</th>
                         <th>Date</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody> 
@@ -38,12 +37,12 @@ export const TournamentList = ( props ) => {
                             <td><Link to={`${rMatch.url}/${tournament.id}`}>{tournament.name}</Link></td>
                             <td>{tournament.players.length}</td>
                             <td>{new Date(tournament.timestamp).toLocaleString('en-us')}</td>
+                            <td><DeleteButton id={tournament.id} deleteAction={props.deleteAction} /></td>
                         </tr>
                     ))}
                 </tbody>
 
             </Table>
-            <LoadingButton actionFunc={props.fetchTournaments} />
             </div>
         )
     }    
